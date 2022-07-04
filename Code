@@ -3,6 +3,7 @@ init()
 {
     level._Weapons = getArrayKeys(level.zombie_weapons);
     level thread CacheWeapons();
+    level.WeaponCategories                    = ["Assault Rifles", "Submachine Guns", "Shotguns", "Light Machine Guns", "Sniper Rifles", "Launcher", "Pistols", "Specials"];
 }
 
 CacheWeapons()
