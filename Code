@@ -2,6 +2,7 @@
 init()
 {
     level._Weapons = getArrayKeys(level.zombie_weapons);
+    level thread CacheWeapons();
 }
 
 CacheWeapons()
