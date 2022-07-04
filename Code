@@ -1,0 +1,81 @@
+//Main
+init()
+{
+    level._Weapons = getArrayKeys(level.zombie_weapons);
+}
+
+CacheWeapons()
+{
+    level.Weapons = [];
+    weapNames     = [];
+    weapon_types  = ["assault", "smg", "cqb", "lmg", "sniper", "launcher", "pistol", "special"];
+
+    foreach(weapon in level._Weapons)
+        weapNames[weapNames.size] = weapon.name;
+
+    for(i=0;i<weapon_types.size;i++)
+    {
+        level.Weapons[i] = [];
+        for(e=1;e<100;e++)
+        {
+            weapon_categ = tableLookup("gamedata/stats/zm/zm_statstable.csv", 0, e, 2);
+            weapon_name = TableLookupIString("gamedata/stats/zm/zm_statstable.csv", 0, e, 3);
+            weapon_id = tableLookup("gamedata/stats/zm/zm_statstable.csv", 0, e, 4);
+            if(weapon_categ == "weapon_" + weapon_types[i])
+            {
+                if(IsInArray(weapNames, weapon_id))
+                {
+                    weapon = spawnStruct();
+                    weapon.name = weapon_name;
+                    weapon.id = weapon_id;
+                    level.Weapons[i][level.Weapons[i].size] = weapon;
+                }
+            }
+        }
+    }
+
+    foreach(weapon in level._Weapons)
+    {
+        isInArray = false;
+        for(e=0;e<level.Weapons.size;e++)
+        {
+            for(i=0;i<level.Weapons[e].size;i++)
+                if(isDefined(level.Weapons[e][i]) && level.Weapons[e][i].id == weapon.name)
+                    isInArray = true;
+        } 
+        if(!isInArray && weapon.displayname != "")
+        {
+            weapons = spawnStruct();
+            weapons.name = MakeLocalizedString(weapon.displayname);
+            weapons.id = weapon.name;
+            level.Weapons[7][level.Weapons[7].size] = weapons;
+        }
+    }
+
+    extras = ["zombie_beast_grapple_dwr", "minigun", "defaultweapon", "tesla_gun"];
+    extrasNames = ["Beast Weapon", "Death Machine", "Default Weapon", "Wunderwaffe DG-2"];
+    foreach(index, extra in extras)
+    {
+        weapons = spawnStruct();
+        weapons.name = extrasNames[index];
+        weapons.id = extra;
+        level.Weapons[7][level.Weapons[7].size] = weapons;
+    }
+}
+give_Weapon(weapon){self zm_weapons::weapon_give(weapon,undefined,undefined,undefined,true);}
+
+
+for(e=0;e<level.WeaponCategories.size;e++)
+        self AddOption("Weapons", level.WeaponCategories[e], ::_NextMenu_, level.WeaponCategories[e], level.WeaponCategories[e]);
+       
+    for(e=0;e<level.WeaponCategories.size;e++)
+    {
+        self AddMenu(level.WeaponCategories[e], "Weapons", "VIP");//Change Verification LEVEL
+        foreach(Weapon in level.Weapons[e])
+        {
+            if(Weapon.name == "Beast Weapon" && level.script != "zm_zod" || Weapon.name == "The Undead-Zapper" && level.script == "zm_factory" || Weapon.name == "H.I.V.E.")
+                continue;
+                        
+            self AddOption(level.WeaponCategories[e], Weapon.name, ::give_Weapon, getWeapon(Weapon.id));
+        }
+    }
